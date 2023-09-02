@@ -16,10 +16,49 @@ The project's objective is to create and launch a web application-based solution
   - Step-by-Step Guidance
 
 ## Technical Stack:
-**Programming Languages**: JavaScript (for front-end development), Python (for back-end development)
-**Front-end Frameworks/Libraries**: HTML, CSS , JS
-**Back-end Frameworks/Libraries**: Django
+**Programming Languages**: JavaScript (for front-end development), Python (for back-end development)<br>
+**Front-end Frameworks/Libraries**: HTML, CSS , JS<br>
+**Back-end Frameworks/Libraries**: Django<br>
 **Tools**: Git (for version control), Sqlite3(for database management), Docker (for containerization),
+
+## Installation
+### Step 1
+clone this repository
+``` bash 
+git clone https://github.com/NafMKD/plant-ai.git
+cd plant-ai
+```
+### Step 2
+Install dependencies
+```bash
+composer install 
+```
+###  Step 3
+Create ``.env`` file and copy everything from ``.env.example`` to ``.env`` file
+for linux
+```bash
+cat .env.example >> .env
+```
+and generate ``APP_KEY``
+```bash
+php artisan key:generate
+```
+### Step 4
+Create `database.sqlite` file in  `database/` folder and migrate the tables
+```bash
+php artisan migrate
+```
+>_optional_, you can also seed the users table<br>
+**email** : `user@gmail.com`<br>
+**password** : `12345678`
+>```bash
+>php artisan db:seed
+>```
+### Step 5
+Start the server and explore!
+```bash
+php artisan serve
+```
 
 ## Contributors
 - [Chala Olani]()
