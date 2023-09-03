@@ -17,4 +17,3 @@ Auth::routes();
 
 Route::get('/', [\App\Http\Controllers\ChatController::class, 'index'])->middleware('auth')->name('home');
 
-Route::get('/d', [\App\Http\Controllers\ChatController::class, 'requester']);

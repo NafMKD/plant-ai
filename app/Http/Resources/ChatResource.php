@@ -21,7 +21,9 @@ class ChatResource extends JsonResource
             'image' => asset('/uploads/images/'.$this->image),
             'created_at' => $this->created_at,
             'formatted_time_created' => $this->formatted_time_created,
-            'formatted_time_updated' => $this->formatted_time_updated
+            'formatted_time_updated' => $this->formatted_time_updated,
+            'disease' => $this->disease_name,
+            'probability' => $this->probability_percent
         ];
     }
 }

@@ -23,7 +23,7 @@
                         <span class="direct-chat-timestamp float-left">{{ $chat->formatted_time_created }}</span>
                     </div>
                     <img class="direct-chat-img" src="{{ asset("assets/user36.png") }}" alt="message user image">
-                    <div class="direct-chat-text bg-gray-dark">
+                    <div class="direct-chat-text bg-gray-dark pl-3 pt-3 pb-3">
                         {{ $chat->message }}
                         @if($chat->image)
                         <div class="row">
@@ -39,8 +39,11 @@
                         <span class="direct-chat-timestamp float-right">{{ $chat->formatted_time_updated }}</span>
                     </div>
                     <img class="direct-chat-img" src="{{ asset("assets/logo36.png") }}" alt="message user image">
-                    <div class="direct-chat-text bg-gray-dark">
-                        {!! $chat->response ?: '<p class="text-danger">No response</p>' !!}
+                    <div class="direct-chat-text bg-gray-dark pl-3 pt-3 pb-3">
+                        @if(!empty($chat->disease_name))
+                        <p>{{ __("Predicted Disease") }} - <b>{{ $chat->disease_name }}</b> ({{ $chat->probability_percent ?? null }}% {{ __("of probability") }})</p>
+                        @endif
+                        {!! nl2br($chat->response) ?: '<p class="text-danger">No response</p>' !!}
                     </div>
                 </div>
                 @endforeach
