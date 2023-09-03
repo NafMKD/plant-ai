@@ -21,6 +21,16 @@ class Chat extends Model
         'message',
         'response',
         'image',
+        'response_metadata'
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'response_metadata' => 'array'
     ];
 
     /**
@@ -31,5 +41,25 @@ class Chat extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Get string form of created_at column
+     * format `16 Jan 5:35:23 pm`
+     * @return string
+     */
+    public function getFormattedTimeCreatedAttribute(): string
+    {
+        return \Carbon\Carbon::parse($this->created_at)->setTimezone('Africa/Addis_Ababa')->format('d M h:m:s a');
+    }
+
+    /**
+     * Get string form of created_at column
+     * format `16 Jan 5:35:23 pm`
+     * @return string
+     */
+    public function getFormattedTimeUpdatedAttribute(): string
+    {
+        return \Carbon\Carbon::parse($this->updated_at)->setTimezone('Africa/Addis_Ababa')->format('d M h:m:s a');
     }
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table-> foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->text('message');
             $table->text('response')->nullable();
+            $table->json('response_metadata')->nullable();
             $table->string('image')->nullable();
             $table->timestamps();
             $table->softDeletes();

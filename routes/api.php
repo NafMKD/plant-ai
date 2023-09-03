@@ -17,3 +17,11 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::group([
+    'middleware' => 'auth:sanctum',
+    'prefix' => 'chat/',
+    'as' => 'chat.'
+], function () {
+    Route::post('/', [\App\Http\Controllers\ChatController::class, 'store'])->name('store');
+});
