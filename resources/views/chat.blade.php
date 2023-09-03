@@ -18,7 +18,7 @@
                     </div>
                 @endif
                 @foreach($chats as $chat)
-                <div class="direct-chat-msg right">
+                <div class="direct-chat-msg right ml-5">
                     <div class="direct-chat-infos clearfix">
                         <span class="direct-chat-timestamp float-left">{{ $chat->formatted_time_created }}</span>
                     </div>
@@ -34,7 +34,7 @@
                         @endif
                     </div>
                 </div>
-                <div class="direct-chat-msg">
+                <div class="direct-chat-msg mr-5">
                     <div class="direct-chat-infos clearfix">
                         <span class="direct-chat-timestamp float-right">{{ $chat->formatted_time_updated }}</span>
                     </div>
