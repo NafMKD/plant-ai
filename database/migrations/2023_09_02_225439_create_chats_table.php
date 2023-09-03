@@ -18,6 +18,8 @@ return new class extends Migration
             $table->text('response')->nullable();
             $table->json('response_metadata')->nullable();
             $table->string('image')->nullable();
+            $table->string('disease')->nullable();
+            $table->string('probability')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

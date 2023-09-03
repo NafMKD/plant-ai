@@ -21,7 +21,9 @@ class Chat extends Model
         'message',
         'response',
         'image',
-        'response_metadata'
+        'response_metadata',
+        'disease',
+        'probability'
     ];
 
     /**
@@ -61,5 +63,33 @@ class Chat extends Model
     public function getFormattedTimeUpdatedAttribute(): string
     {
         return \Carbon\Carbon::parse($this->updated_at)->setTimezone('Africa/Addis_Ababa')->format('d M h:m:s a');
+    }
+
+    /**
+     * Get formatted name of the disease
+     *
+     * @return ?string
+     */
+    public function getDiseaseNameAttribute(): ?string
+    {
+        if (empty($this->disease)) return null;
+        $explode = explode('__', $this->disease);
+        $disease = str_replace('_', ' ', $explode[1]);
+
+        return $disease.' of '.$explode[0];
+    }
+
+    /**
+     * Get formatted percent form of probability
+     *
+     * @return float|null
+     */
+    public function getProbabilityPercentAttribute(): ?float
+    {
+        if (empty($this->probability)) return null;
+
+        $probability = round(($this->probability * 100), 2);
+
+        return $probability;
     }
 }

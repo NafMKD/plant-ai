@@ -99,7 +99,7 @@
                         <span class="direct-chat-timestamp float-left">${time}</span>
                     </div>
                     <img class="direct-chat-img" src="{{ asset("assets/user36.png") }}" alt="message user image">
-                    <div class="direct-chat-text bg-gray-dark">
+                    <div class="direct-chat-text bg-gray-dark pl-3 pt-3 pb-3">
                         ${message}`;
         if(image !== "" || image === undefined) {
             html += `
@@ -135,7 +135,10 @@
                         <span class="direct-chat-timestamp float-right">${message.formatted_time_updated}</span>
                     </div>
                     <img class="direct-chat-img" src="{{ asset("assets/logo36.png") }}" alt="message user image">
-                    <div class="direct-chat-text bg-gray-dark">`;
+                    <div class="direct-chat-text bg-gray-dark pl-3 pt-3 pb-3">`;
+        if(message.disease !== "" && message.disease !== null && message.disease !== undefined) {
+            html += `<p>{{ __("Predicted Disease") }} - <b>${message.disease}</b> (${message.probability}% {{ __("of probability") }})</p>`;
+        }
         if(message.response === "" || message.response === null || message.response === undefined) {
             html += `<p class="text-danger">No response</p></div>
             </div>`;

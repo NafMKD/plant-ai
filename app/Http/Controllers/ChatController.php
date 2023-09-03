@@ -3,12 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ChatResource;
-use App\Models\Chat;
-use App\Models\User;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Routing\ResponseFactory;
+use Illuminate\Http\Client\Response;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
@@ -28,9 +25,9 @@ class ChatController extends Controller
      * Store a newly created resource in storage.
      *
      * @param Request $request
-     * @return ResponseFactory|Application|Response|\Illuminate\Foundation\Application|\ChatResource
+     * @return mixed
      */
-    public function store(Request $request): ResponseFactory|Application|Response|\Illuminate\Foundation\Application|\ChatResource
+    public function store(Request $request): mixed
     {
         $request->validate([
             'message' => 'required|string',
@@ -42,28 +39,40 @@ class ChatController extends Controller
         ];
 
         try {
-            if($request->file('image')) {
-                $file = $request->file('image');
-                $file_name = time().'_'.str_replace(' ', '_', $file->getClientOriginalName());
-                $destination = public_path('/uploads/images');
-                $file->move($destination, $file_name);
-                $data['image'] = $file_name;
-            }
+            return DB::transaction( function () use ($request, $data) {
+                $prediction = null;
+                if ($request->hasFile('image')) {
+                    $file = $request->file('image');
+                    $file_name = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                    $destination = public_path('/uploads/images');
+                    $file->move($destination, $file_name);
+                    $data['image'] = $file_name;
+                    // get prediction
+                    $prediction = Http::attach('image', file_get_contents(public_path('/uploads/images/' . $file_name)), 'image.jpg')
+                        ->post('http://localhost:5000/predict', $request->all());
 
-            $data = $request->user()->chats()->create($data);
+                }
+                $data = $request->user()->chats()->create($data);
 
-            $gpt = $this->generativeAI($data['message']);
+                if ($prediction !== null && $prediction !== "Unknown") {
+                    $explode = explode('__', $prediction['predicted_class_label']);
+                    $disease = str_replace('_', ' ', $explode[1]);
+                    $message = $data['message'] . '\n';
+                    $message .= "Tell me about {$disease} disease in {$explode[0]}";
+                    $gpt = $this->generativeAI($message);
+                } else {
+                    $gpt = $this->generativeAI($data['message']);
+                }
 
-            $data->update([
-                'response' => $gpt['choices'][0]['message']['content'],
-                'response_metadata' => $gpt
-            ]);
+                $data->update([
+                    'response' => $gpt['choices'][0]['message']['content'],
+                    'response_metadata' => $gpt,
+                    'disease' => $prediction['predicted_class_label'] ?? null,
+                    'probability' => $prediction['probability'] ?? null
+                ]);
 
-            if($data) return new ChatResource($data);
-
-            return response([
-                'message' => 'Failed to save chat!'
-            ], 422);
+                return new ChatResource($data);
+            });
         } catch (\Exception $e) {
             return response([
                 'message' => 'Internal server error occurred!'
@@ -78,12 +87,13 @@ class ChatController extends Controller
      * Request GPT data
      *
      * @param string $message
-     * @return \Illuminate\Http\Client\Response
+     * @return Response
      */
-    public function generativeAI(string $message): \Illuminate\Http\Client\Response
+    public function generativeAI(string $message): Response
     {
         // choices  0 message content
-        // dd($response['choices'][0]['message']['content']);
-        return Http::post("http://localhost:8001?message=$message");
+        return Http::post("http://localhost:5000/gpt", [
+            "message" => $message
+        ]);
     }
 }
