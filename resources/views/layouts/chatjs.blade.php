@@ -32,16 +32,21 @@
 
             // append message
             if (message !== "") appendMessage(message, image)
+            // reset form
+            $(`#messageForm :input[name="message"]`).val("");
+            $(`#messageForm :input[name="image"]`).val("")
+
             // sending message
-            Swal.fire({
-                width: "10%",
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                allowEnterKey: false,
-            });
-            Swal.showLoading();
+            appendSpinner()
             sendMessage(formdata);
         });
+
+        // lisening for keydown
+        $(`textarea[name="message"]`).on("keydown", e => {
+            if(e.keyCode === 13 && e.ctrlKey) {
+                $("#messageForm").submit();
+            }
+        })
 
     });
 
@@ -53,22 +58,20 @@
             contentType: false, // Set to false for FormData
             processData: false, // Set to false for FormData
             success: function(response) {
+                // remove spinner
+                removeSpinner()
+
                 // displaying received response
-                appendResponse(response);
-                // reset form
-                $(`#messageForm :input[name="message"]`).val("");
-                $(`#messageForm :input[name="image"]`).val("")
+                appendResponse(response.data);
 
                 // btn cleanup
                 $("#btnSubmit").removeClass('disabled');
                 $("#btnSubmit").html(`<i class="far fa-paper-plane"></i>`)
 
-                // close alert
-                Swal.close();
             },
             error: function(error) {
-                // close alert
-                Swal.close();
+                // remove spinner
+                removeSpinner()
                 if (error.status === 422) {
                     Toast.fire({
                         icon: 'error',
@@ -90,9 +93,10 @@
     }
 
     function appendMessage(message, image) {
-        let html = `<div class="direct-chat-msg right">
+        let time = moment().format("D MMM h:m:s a")
+        let html = `<div class="direct-chat-msg right ml-5">
                     <div class="direct-chat-infos clearfix">
-                        <span class="direct-chat-timestamp float-left">--</span>
+                        <span class="direct-chat-timestamp float-left">${time}</span>
                     </div>
                     <img class="direct-chat-img" src="{{ asset("assets/user36.png") }}" alt="message user image">
                     <div class="direct-chat-text bg-gray-dark">
@@ -126,21 +130,37 @@
 
     function appendResponse(message) {
         console.log(message)
-        let html = `<div class="direct-chat-msg">
+        let html = `<div class="direct-chat-msg mr-5">
                     <div class="direct-chat-infos clearfix">
-                        <span class="direct-chat-timestamp float-right">${message.data.formatted_time_updated}</span>
+                        <span class="direct-chat-timestamp float-right">${message.formatted_time_updated}</span>
                     </div>
                     <img class="direct-chat-img" src="{{ asset("assets/logo36.png") }}" alt="message user image">
                     <div class="direct-chat-text bg-gray-dark">`;
-        if(message.data.message === "" || message.data.message === null || message.data.message === undefined) {
-            html += `${message.data.message}</div>
+        if(message.response === "" || message.response === null || message.response === undefined) {
+            html += `<p class="text-danger">No response</p></div>
             </div>`;
         }else {
-            html += `<p class="text-danger">No response</p></div>
+            html += `${message.response.replace(/\n/g, "<br />")}</div>
             </div>`;
         }
 
         $("#messageViewer").append(html);
+        $('html, body').animate({ scrollTop: $(document).height() }, 'fast');
+    }
+
+    function appendSpinner() {
+        let html = `<div class="direct-chat-msg" id="spinnerDiv">
+                    <img class="direct-chat-img" src="{{ asset("assets/logo36.png") }}" alt="message user image">
+                    <div class="direct-chat-text bg-gray-dark text-center">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                </div>`;
+        $("#messageViewer").append(html);
+        $('html, body').animate({ scrollTop: $(document).height() }, 'fast');
+    }
+
+    function removeSpinner() {
+        $("#spinnerDiv").remove();
         $('html, body').animate({ scrollTop: $(document).height() }, 'fast');
     }
 </script>
